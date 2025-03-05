@@ -72,7 +72,7 @@ exports.skyflowmain = async (event) => {
         }
         const uri = event.QueryParam.URI;
 
-        // Detokenization, if needed
+        // Detokenize request attributes, if needed
         if (payload.primaryAccountNum) {
             try {
                 let response = await detokenize(accessToken, payload.primaryAccountNum);
