@@ -148,4 +148,4 @@ Note: these examples are not an officially-supported product or recommended for 
 - Finally, execute the attached postman collection "VROL Package" by running all requests in its default order.
 
 #### Use this collection
-This collection creates an outbound connection which when invoked passes the API payload to VROL and receives back the raw response. Before using it, ensure that you have defined the vaultID, vaultURL and created the necessary mTLS certs provided in your VROL account and updated your postman collection.
+This collection creates an outbound connection which when invoked passes the API payload to VROL and receives back the raw response. Before using it, ensure that you have defined the vaultID, vaultURL and created the necessary mTLS certs provided in your VROL account and updated your postman collection accordingly.
