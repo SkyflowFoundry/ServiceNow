@@ -131,7 +131,7 @@ async function detokenize(accessToken, tokenized_pan) {
 #### Use this script
 This script is now stored as a secure function in Skyflow. Before using it, ensure that you have defined the vaultID, vaultURL and created the necessary environment variables (signingKey & consumerKey) provided in your Mastercom account.
 
-Now, secure functions can be triggered using a secure inbound connection. Once this connection is invoked, the function will automatically be triggered firing an API request to Mastercom as defined in the callMastercom function.
+Now, secure functions can be triggered through the created inbound connection. Once this connection is invoked, the function will automatically be triggered firing an API request to Mastercom as defined in the callMastercom function.
 
 # VROL
 This repository contains the full postman collection necessary to allow Skyflow to send/receive sensitive data from the VISA dispute management service - VROL.
