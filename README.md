@@ -46,7 +46,7 @@ exports.skyflowmain = async (event) => {
             throw new Error("Invalid event object received.");
         }
 
-        // Decode and parse request payload safely
+        // Decode and parse request payload
         let payload;
         try {
             const request = Buffer.from(event.BodyContent, "base64");
@@ -55,7 +55,7 @@ exports.skyflowmain = async (event) => {
             throw new Error("Failed to decode or parse the request payload: " + error.message);
         }
 
-        // Extract headers safely
+        // Extract headers
         const headers = event.Headers;
         if (!headers['X-Skyflow-Authorization'] || !headers['X-Skyflow-Authorization'][0]) {
             throw new Error("Missing or invalid X-Skyflow-Authorization header.");
@@ -72,7 +72,7 @@ exports.skyflowmain = async (event) => {
         }
         const uri = event.QueryParam.URI;
 
-        // Detokenization if needed
+        // Detokenization, if needed
         if (payload.primaryAccountNum) {
             try {
                 let response = await detokenize(accessToken, payload.primaryAccountNum);
