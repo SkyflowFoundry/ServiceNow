@@ -1,0 +1,432 @@
+{
+	"info": {
+		"_postman_id": "4b607af2-f057-488b-9fc4-a43c511cde5b",
+		"name": "VROL Package",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18388553"
+	},
+	"item": [
+		{
+			"name": "Outbound Connection: Create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var vardata = JSON.parse(responseBody);",
+							"pm.environment.set(\"connectionID\", vardata.ID);",
+							"pm.environment.set(\"connectionURL\", vardata.connectionURL);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-SKYFLOW-ACCOUNT-ID",
+						"value": "{{accountID}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"VROL\",\n    \"description\": \"VROL Services\",\n    \"baseURL\": \"https://mte-vrolgateway.visa.com\",\n    \"vaultID\": \"{{vaultID}}\",\n    \"routes\": [\n        {\n            \"name\": \"SubmitTransactionInquiry\",\n            \"path\": \"/rsrv_rolti-mte2/api/submitTranInquiry\",\n            \"method\": \"POST\",\n            \"requestBody\": [\n            ],\n            \"responseBody\": [\n                {\n                    \"action\": \"TOKENIZATION\",\n                    \"fieldName\": \"ResponseData.TransactionSummary.*.CardNumber\",\n                    \"table\": \"cards\",\n                    \"column\": \"card_number\"\n                }                \n            ]        \n        }\n    ],\n    \"authMode\": \"MTLS\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{manageURL}}/v1/gateway/outboundRoutes",
+					"host": [
+						"{{manageURL}}"
+					],
+					"path": [
+						"v1",
+						"gateway",
+						"outboundRoutes"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Outbound Connection: Create",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-SKYFLOW-ACCOUNT-ID",
+								"value": "{{accountID}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"VROL\",\n    \"description\": \"VROL Services\",\n    \"baseURL\": \"https://mte-vrolgateway.visa.com\",\n    \"vaultID\": \"{{vaultID}}\",\n    \"routes\": [\n        {\n            \"name\": \"SubmitTransactionInquiry\",\n            \"path\": \"/rsrv_rolti-mte2/api/submitTranInquiry\",\n            \"method\": \"POST\",\n            \"requestBody\": [\n            ],\n            \"responseBody\": [\n                {\n                    \"action\": \"TOKENIZATION\",\n                    \"fieldName\": \"ResponseData.TransactionSummary.*.CardNumber\",\n                    \"table\": \"cards\",\n                    \"column\": \"card_number\"\n                }                \n            ]        \n        }\n    ],\n    \"authMode\": \"MTLS\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{manageURL}}/v1/gateway/outboundRoutes",
+							"host": [
+								"{{manageURL}}"
+							],
+							"path": [
+								"v1",
+								"gateway",
+								"outboundRoutes"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Fri, 21 Feb 2025 04:24:51 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "x-request-id",
+							"value": "3c3e41f0-9cf7-425f-9397-5af637481683"
+						},
+						{
+							"key": "x-skyflow-trace-id",
+							"value": "175c0476e4c52808cd2a33df2d21848b"
+						},
+						{
+							"key": "x-envoy-upstream-service-time",
+							"value": "381"
+						},
+						{
+							"key": "strict-transport-security",
+							"value": "max-age=31536000; includeSubDomains; preload"
+						},
+						{
+							"key": "content-security-policy",
+							"value": "frame-ancestors none;"
+						},
+						{
+							"key": "x-frame-options",
+							"value": "deny"
+						},
+						{
+							"key": "x-xss-protection",
+							"value": "1; mode=block"
+						},
+						{
+							"key": "x-content-type-options",
+							"value": "nosniff"
+						},
+						{
+							"key": "referrer-policy",
+							"value": "no-referrer"
+						},
+						{
+							"key": "x-download-options",
+							"value": "noopen"
+						},
+						{
+							"key": "x-dns-prefetch-control",
+							"value": "off"
+						},
+						{
+							"key": "permissions-policy",
+							"value": "camera 'none';microphone 'none';geolocation 'none';encrypted-media 'none';payment 'none';speaker 'none';usb 'none';"
+						},
+						{
+							"key": "cf-cache-status",
+							"value": "DYNAMIC"
+						},
+						{
+							"key": "Server",
+							"value": "cloudflare"
+						},
+						{
+							"key": "CF-RAY",
+							"value": "9153f813be61a2c4-YUL"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"ID\": \"d8a6b8686c3d4be0a1e7adb2aec672ab\",\n    \"connectionURL\": \"https://ebfc9bee4242.gateway.skyflowapis.com/v1/gateway/outboundRoutes/d8a6b8686c3d4be0a1e7adb2aec672ab\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Outbound Connection: MTLS Secrets",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-SKYFLOW-ACCOUNT-ID",
+						"value": "{{accountID}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"routeSecret\": {\n    \"publicKey\": \"string\",\n    \"privateKey\": \"string\"\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{manageURL}}/v1/gateway/outboundRoutes/{{connectionID}}/secret",
+					"host": [
+						"{{manageURL}}"
+					],
+					"path": [
+						"v1",
+						"gateway",
+						"outboundRoutes",
+						"{{connectionID}}",
+						"secret"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Outbound Connection: MTLS Secrets",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-SKYFLOW-ACCOUNT-ID",
+								"value": "{{accountID}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"routeSecret\": {\n    \"publicKey\": \"string\",\n    \"privateKey\": \"string\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{manageURL}}/v1/gateway/outboundRoutes/{{connectionID}}/secret",
+							"host": [
+								"{{manageURL}}"
+							],
+							"path": [
+								"v1",
+								"gateway",
+								"outboundRoutes",
+								"{{connectionID}}",
+								"secret"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Fri, 21 Feb 2025 04:25:02 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "2"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "x-request-id",
+							"value": "0d4c5a3c-20a7-4864-adb9-f4edd57a9e05"
+						},
+						{
+							"key": "x-skyflow-trace-id",
+							"value": "5be46fe3b050b27e6505fd24fec2a120"
+						},
+						{
+							"key": "x-envoy-upstream-service-time",
+							"value": "3838"
+						},
+						{
+							"key": "strict-transport-security",
+							"value": "max-age=31536000; includeSubDomains; preload"
+						},
+						{
+							"key": "content-security-policy",
+							"value": "frame-ancestors none;"
+						},
+						{
+							"key": "x-frame-options",
+							"value": "deny"
+						},
+						{
+							"key": "x-xss-protection",
+							"value": "1; mode=block"
+						},
+						{
+							"key": "x-content-type-options",
+							"value": "nosniff"
+						},
+						{
+							"key": "referrer-policy",
+							"value": "no-referrer"
+						},
+						{
+							"key": "x-download-options",
+							"value": "noopen"
+						},
+						{
+							"key": "x-dns-prefetch-control",
+							"value": "off"
+						},
+						{
+							"key": "permissions-policy",
+							"value": "camera 'none';microphone 'none';geolocation 'none';encrypted-media 'none';payment 'none';speaker 'none';usb 'none';"
+						},
+						{
+							"key": "CF-Cache-Status",
+							"value": "DYNAMIC"
+						},
+						{
+							"key": "Server",
+							"value": "cloudflare"
+						},
+						{
+							"key": "CF-RAY",
+							"value": "9153f843bc2ea2c4-YUL"
+						}
+					],
+					"cookie": [],
+					"body": "{}"
+				}
+			]
+		},
+		{
+			"name": "Outbound Connection: Invoke",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Skyflow-Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "X-SKYFLOW-ACCOUNT-ID",
+						"value": "{{accountID}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"surcharge\": \"11.99\",\n  \"amount\": \"124.02\",\n  \"localTransactionDateTime\": \"2023-05-05T12:00:00\",\n  \"cpsAuthorizationCharacteristicsIndicator\": \"Y\",\n  \"riskAssessmentData\": {\n    \"traExemptionIndicator\": true,\n    \"trustedMerchantExemptionIndicator\": true,\n    \"scpExemptionIndicator\": true,\n    \"delegatedAuthenticationIndicator\": true,\n    \"lowValueExemptionIndicator\": true\n  },\n  \"colombiaNationalServiceData\": {\n    \"addValueTaxReturn\": \"10.00\",\n    \"taxAmountConsumption\": \"10.00\",\n    \"nationalNetReimbursementFeeBaseAmount\": \"20.00\",\n    \"addValueTaxAmount\": \"10.00\",\n    \"nationalNetMiscAmount\": \"10.00\",\n    \"countryCodeNationalService\": \"170\",\n    \"nationalChargebackReason\": \"11\",\n    \"emvTransactionIndicator\": \"1\",\n    \"nationalNetMiscAmountType\": \"A\",\n    \"costTransactionIndicator\": \"0\",\n    \"nationalReimbursementFee\": \"20.00\"\n  },\n  \"cardAcceptor\": {\n    \"address\": {\n      \"country\": \"USA\",\n      \"zipCode\": \"94404\",\n      \"county\": \"081\",\n      \"state\": \"CA\"\n    },\n    \"idCode\": \"ABCD1234ABCD123\",\n    \"name\": \"Visa Inc. USA-Foster City\",\n    \"terminalId\": \"ABCD1234\"\n  },\n  \"acquirerCountryCode\": \"840\",\n  \"acquiringBin\": \"408999\",\n  \"senderCurrencyCode\": \"USD\",\n  \"retrievalReferenceNumber\": \"330000560021\",\n  \"addressVerificationData\": {\n    \"street\": \"XYZ St\",\n    \"postalCode\": \"12345\"\n  },\n  \"cavv\": \"0700100038238906000013405823891061668252\",\n  \"systemsTraceAuditNumber\": \"452011\",\n  \"businessApplicationId\": \"AA\",\n  \"senderPrimaryAccountNumber\": \"4060320000000127\",\n  \"settlementServiceIndicator\": \"9\",\n  \"visaMerchantIdentifier\": \"73625198\",\n  \"foreignExchangeFeeTransaction\": \"11.99\",\n  \"senderCardExpiryDate\": \"2023-10\",\n  \"nationalReimbursementFee\": \"11.22\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{connectionURL}}/rsrv_rolti-mte2/api/submitTranInquiry",
+					"host": [
+						"{{connectionURL}}"
+					],
+					"path": [
+						"rsrv_rolti-mte2",
+						"api",
+						"submitTranInquiry"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
