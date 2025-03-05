@@ -3,7 +3,7 @@ ServiceNow has collaborated with Skyflow to offload PCI compliance and offer its
 ![Project Screenshot](dispute.png)
 
 # Mastercom
-This repository contains a nodeJS script that should be used within the Skyflow secure functions environment to allow Skyflow to send/receive sensitive data from the Mastercard dispute management service - Mastercom.
+This repository contains the full postman collection necessary to allow Skyflow to send/receive sensitive data from the Mastercard dispute management service - Mastercom.
 
 Note: these examples are not an officially-supported product or recommended for production deployment without further review, testing, and hardening. Use with caution, this is sample code only.
 
@@ -12,8 +12,8 @@ Note: these examples are not an officially-supported product or recommended for 
 - Create or log into your Skyflow account
 - Create a vault and relevant schema to hold your data
 - Create a service account and download the credentials.json file
-- Copy your Vault URL, Vault ID and Account ID to be used in the function setup from next step.
-- Finally, click on the "Manage Account" button on the top right side and go to Functions. Now click "Add function" and copy/paste the code below.
+- Copy your Vault URL, Vault ID and Account ID and store within your postman environment variables.
+- Finally, execute the attached postman collection "Mastercom Package" by running all requests in its default order.
 
 ## Script Overview
 Mastercom requires that a specific signature be passed in every request to authenticate the user. This signature is calculated based on multiple variables listed below:
@@ -28,7 +28,7 @@ Once these variables are collected, the below SDK method should be triggered:
 const oauth = require('mastercard-oauth1-signer');
 const authHeader = oauth.getAuthorizationHeader(uri, method, payload, consumerKey, signingKey);
 ```
-Below you can find the complete end to end script to execute such process.
+Below you can find a complete end to end script to execute such process. Such script is already embedded in the attached postman collection.
 
 ### nodeJS script
 
@@ -131,4 +131,21 @@ async function detokenize(accessToken, tokenized_pan) {
 #### Use this script
 This script is now stored as a secure function in Skyflow. Before using it, ensure that you have defined the vaultID, vaultURL and created the necessary environment variables (signingKey & consumerKey) provided in your Mastercom account.
 
-Now, secure functions can be triggered using a secure connection. In this case we will create an inbound connection then copy/paste the function ID that we previously created here. Once this connection is invoked, the function will automatically be triggered firing an API request to Mastercom as defined in the callMastercom function.
+Now, secure functions can be triggered using a secure inbound connection. Once this connection is invoked, the function will automatically be triggered firing an API request to Mastercom as defined in the callMastercom function.
+
+# VROL
+This repository contains the full postman collection necessary to allow Skyflow to send/receive sensitive data from the VISA dispute management service - VROL.
+
+Note: these examples are not an officially-supported product or recommended for production deployment without further review, testing, and hardening. Use with caution, this is sample code only.
+
+## Prerequisites
+
+- Create or log into your Skyflow account
+- Create a vault and relevant schema to hold your data
+- Create a service account and download the credentials.json file
+- Copy your Vault URL, Vault ID and Account ID and store within your postman environment variables.
+- Ensure you have created the required mTLS certs to allow Skyflow to authenticate the VROL services.
+- Finally, execute the attached postman collection "VROL Package" by running all requests in its default order.
+
+#### Use this collection
+This collection creates an outbound connection which when invoked passes the API payload to VROL and receives back the raw response. Before using it, ensure that you have defined the vaultID, vaultURL and created the necessary mTLS certs provided in your VROL account and updated your postman collection.
