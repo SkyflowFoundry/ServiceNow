@@ -36,95 +36,127 @@ Below you can find a complete end to end script to execute such process. Such sc
 const axios = require('axios');
 const oauth = require('mastercard-oauth1-signer');
 
-const vaultID= "";      //Define your vault ID here.
-const vaultURL= "";     //Define your vault URL here.
-
-const { signingKey, consumerKey} = process.env;
+const { signingKey, consumerKey, vaultID, vaultURL } = process.env;
 
 // Don't change the function name. It needs to be skyflowmain.
 exports.skyflowmain = async (event) => {
-  // Use request to access the connection payload.
-  const request = Buffer.from(event.BodyContent, "base64");
-  const payload = JSON.parse(request.toString());
+    try {
+        // Validate event structure
+        if (!event || !event.BodyContent || !event.Headers || !event.QueryParam) {
+            throw new Error("Invalid event object received.");
+        }
 
-  // Use headers to access the connection headers.
-  const headers = event.Headers;
-  const authorizationHeaderValue = headers['X-Skyflow-Authorization'];
-  const accessToken = authorizationHeaderValue[0];
+        // Decode and parse request payload safely
+        let payload;
+        try {
+            const request = Buffer.from(event.BodyContent, "base64");
+            payload = JSON.parse(request.toString());
+        } catch (error) {
+            throw new Error("Failed to decode or parse the request payload: " + error.message);
+        }
 
-  const uri = event.QueryParam.URI;
-  const uri_method = headers['X-Request-Audit-Uri-Method'];
-  const method = uri_method[0];
-  //console.log("params: " + method + " " + uri);
+        // Extract headers safely
+        const headers = event.Headers;
+        if (!headers['X-Skyflow-Authorization'] || !headers['X-Skyflow-Authorization'][0]) {
+            throw new Error("Missing or invalid X-Skyflow-Authorization header.");
+        }
+        const accessToken = headers['X-Skyflow-Authorization'][0];
 
-    if (payload.primaryAccountNum){
-    let response = await detokenize(accessToken, payload.primaryAccountNum);
-    //console.log("resp value: " + response.data.records[0].value);
-    payload.primaryAccountNum = response.data.records[0].value;}
+        if (!headers['X-Request-Audit-Uri-Method'] || !headers['X-Request-Audit-Uri-Method'][0]) {
+            throw new Error("Missing or invalid X-Request-Audit-Uri-Method header.");
+        }
+        const method = headers['X-Request-Audit-Uri-Method'][0];
 
-  let data = JSON.stringify(payload);
-  //console.log("Payload= ", data);
+        if (!event.QueryParam.URI) {
+            throw new Error("Missing URI parameter.");
+        }
+        const uri = event.QueryParam.URI;
 
-  const authHeader = oauth.getAuthorizationHeader(uri, method, data, consumerKey, signingKey);
-  //console.log("OAuth Header= ", authHeader);
+        // Detokenization if needed
+        if (payload.primaryAccountNum) {
+            try {
+                let response = await detokenize(accessToken, payload.primaryAccountNum);
+                if (response && response.data && response.data.records && response.data.records.length > 0) {
+                    payload.primaryAccountNum = response.data.records[0].value;
+                } else {
+                    throw new Error("Detokenization response missing expected data.");
+                }
+            } catch (error) {
+                console.error("Detokenization failed: " + error.message);
+                return { error: "Detokenization failed", details: error.message };
+            }
+        }
 
-const response = await callMastercom(uri, method, data, authHeader);
-//console.log("Before Exit: ", response);
-return response;
-}
+        let data = JSON.stringify(payload);
 
+        // Generate OAuth header
+        let authHeader;
+        try {
+            authHeader = oauth.getAuthorizationHeader(uri, method, data, consumerKey, signingKey);
+        } catch (error) {
+            throw new Error("Failed to generate OAuth header: " + error.message);
+        }
 
-async function callMastercom(uri, method, data, authHeader) {
+        // Call Mastercom
+        try {
+            const response = await callMastercom(uri, method, data, authHeader);
+            return response;
+        } catch (error) {
+            console.error("Error in callMastercom: " + error.message);
+            return { error: "Mastercom API call failed", details: error.message };
+        }
 
-let config = {
-  method: method,
-  maxBodyLength: Infinity,
-  url: uri,
-  headers: { 
-    'Authorization': authHeader, 
-    'Content-Type': 'application/json',
-  },
-  data : data
+    } catch (error) {
+        console.error("Error in skyflowmain:", error.message);
+        return { error: "Function execution failed", details: error.message };
+    }
 };
 
-console.log("About to Call Axios");
-return await axios.request(config)
-.then((response) => {
-  //console.log("Mastercom: ", JSON.stringify(response.data));
-  return response.data;
-})
-.catch((error) => {
-  console.log(error);
-  return error;
-});
+async function callMastercom(uri, method, data, authHeader) {
+    let config = {
+        method: method,
+        maxBodyLength: Infinity,
+        url: uri,
+        headers: {
+            'Authorization': authHeader,
+            'Content-Type': 'application/json',
+        },
+        data: data
+    };
 
+    console.log("About to Call Axios");
+
+    try {
+        const response = await axios.request(config);
+        return response.data;
+    } catch (error) {
+        console.error("Axios request failed:", error.message);
+        return { error: "Axios request failed", details: error.message };
+    }
 }
 
 async function detokenize(accessToken, tokenized_pan) {
-    const url = vaultURL + "/v1/vaults/" + vaultID + "/detokenize";
+    const url = `${vaultURL}/v1/vaults/${vaultID}/detokenize`;
     const headers = {
-        'Authorization': 'Bearer ' + accessToken, // Replace with your actual token
-        'Content-Type': 'application/json' // Specify the content type
+        'Authorization': 'Bearer ' + accessToken,
+        'Content-Type': 'application/json'
     };
     const body = {
-    "detokenizationParameters": [
-        {
-            "token": tokenized_pan,
-            "redaction":"PLAIN_TEXT"
-        }
-    ]
-};
+        "detokenizationParameters": [
+            {
+                "token": tokenized_pan,
+                "redaction": "PLAIN_TEXT"
+            }
+        ]
+    };
 
     try {
         const resp = await axios.post(url, body, { headers });
-        //console.log('Response:', resp.data);
         return resp;
-        // Handle response data here
     } catch (error) {
-        console.error('Error making the request:', error.message);
-        // Handle error here
+        console.error("Detokenization request failed:", error.message);
+        return { error: "Detokenization request failed", details: error.message };
     }
-
 }
 ```
 
