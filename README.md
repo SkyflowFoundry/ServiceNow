@@ -72,7 +72,7 @@ exports.skyflowmain = async (event) => {
         }
         const uri = event.QueryParam.URI;
 
-        // Detokenize request attributes, if needed
+        // Detokenize request, if needed
         if (payload.primaryAccountNum) {
             try {
                 let response = await detokenize(accessToken, payload.primaryAccountNum);
@@ -97,10 +97,14 @@ exports.skyflowmain = async (event) => {
             throw new Error("Failed to generate OAuth header: " + error.message);
         }
 
-        // Call Mastercom
+        // Call Mastercom & Tokeinze response, if needed
         try {
             const response = await callMastercom(uri, method, data, authHeader);
-            return response;
+            console.log("Mastercom Response: ", response);
+            const tokenizedResponse = await tokenizePayload(response, accessToken);
+            console.log("Mastercom Tokenized Response: ");
+            console.dir(tokenizedResponse, { depth: null });
+            return tokenizedResponse;
         } catch (error) {
             console.error("Error in callMastercom: " + error.message);
             return { error: "Mastercom API call failed", details: error.message };
@@ -123,8 +127,6 @@ async function callMastercom(uri, method, data, authHeader) {
         },
         data: data
     };
-
-    console.log("About to Call Axios");
 
     try {
         const response = await axios.request(config);
@@ -155,7 +157,108 @@ async function detokenize(accessToken, tokenized_pan) {
         return resp;
     } catch (error) {
         console.error("Detokenization request failed:", error.message);
+        if (error.response) {
+            console.error("Detokenization failed with status:", error.response.status);
+            console.error("Response data:", error.response.data);
+        }
         return { error: "Detokenization request failed", details: error.message };
+    }
+}
+
+async function tokenizePayload(payload, accessToken) {
+    try {
+        // Recursively traverse and replace primaryAccountNumber values
+        await traverseAndTokenize(payload, accessToken);
+        return payload;
+    } catch (error) {
+        console.error("Error in tokenizePayload:", error.message);
+        return { error: "Tokenization failed", details: error.message };
+    }
+}
+
+async function traverseAndTokenize(obj, accessToken) {
+    if (!obj || typeof obj !== "object") return;
+
+    for (const key in obj) {
+        if (typeof obj[key] === "object") {
+            // Recurse into nested objects or arrays
+            await traverseAndTokenize(obj[key], accessToken);
+        } else if (key.toLowerCase().includes("primaryaccountnumber")) {
+            // Found a primaryAccountNumber, tokenize it
+            try {
+                let response = await tokenize(accessToken, obj[key]);
+                if (response && response.data && response.data.records && response.data.records.length > 0) {
+                    obj[key] = response.data.records[0].token; // Overwrite with tokenized value
+                } else {
+                    console.error("Tokenization response missing expected data for:", obj[key]);
+                    console.log("Executing Insert Record.");
+                    let response = await insert(accessToken, obj[key]);
+                    if (response && response.data && response.data.records && response.data.records.length > 0) {
+                        obj[key] = response.data.records[0].tokens.card_number; // Overwrite with tokenized value
+                        } 
+                }
+            } catch (error) {
+                console.error("Tokenization failed for:", obj[key], "-", error.message);
+            }
+        }
+    }
+}
+
+// Function to call tokenization API
+async function tokenize(accessToken, pan) {
+    const url = `${vaultURL}/v1/vaults/${vaultID}/tokenize`;
+    const headers = {
+        'Authorization': 'Bearer ' + accessToken,
+        'Content-Type': 'application/json'
+    };
+    const body = {
+        "tokenizationParameters": [
+            {
+                "value": pan,
+                "column": "card_number",
+                "table": "cards",
+            }
+        ]
+    };
+
+    try {
+        const resp = await axios.post(url, body, { headers });
+        return resp;
+    } catch (error) {
+        console.error("Tokenization request failed:", error.message);
+        console.error("Detokenization failed with status:", error.response.status);
+        console.error("Response data:", error.response.data);
+        return { error: "Tokenization request failed", details: error.message };
+    }
+}
+
+// Function to call insert record API
+async function insert(accessToken, pan) {
+    const url = `${vaultURL}/v1/vaults/${vaultID}/cards`;
+    const headers = {
+        'Authorization': 'Bearer ' + accessToken,
+        'Content-Type': 'application/json'
+    };
+    const body = {
+        "quorum": false,
+        "records": [
+            {
+                "fields": {
+                    "card_number": pan,
+                }
+            }
+        ],
+        "tokenization": true
+    };
+
+    try {
+        const resp = await axios.post(url, body, { headers });
+        return resp;
+    } catch (error) {
+        console.error("Insert request failed:", error.message);
+        console.error("Insert failed with status:", error.response.status);
+        console.error("Insert Response data:", error.response.data);
+        return { error: "Insert request failed", details: error.message };
     }
 }
 ```
